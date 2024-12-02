@@ -1,69 +1,100 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-export const generateUUID = (): string => {
-  return uuidv4();
-};
-
-type UUID = string;
-
-export type View =
-  | TextLabel
-  | Button
-  | Navigation
-  | Scroll;
-
+// Base Interface for all Views
 interface BaseView {
-  id: UUID;
-  type: string;
+  node: string;
+  element: { id: string };
 }
 
-export interface TextLabel extends BaseView {
-  type: "TextLabel";
-  body: string;
-  colour: string;
-  font: string;
+// Specific View Interfaces
+interface TextLabel extends BaseView {
+  node: "TextLabel";
+  element: {
+    id: string;
+    body: string;
+    colour: string;
+    font: string;
+  };
 }
 
-export interface Button extends BaseView {
-  type: "Button";
-  label: string;
-  colour: string;
-  onTapHandler: () => void | string;
+interface Button extends BaseView {
+  node: "Button";
+  element: {
+    id: string;
+    label: string;
+    colour: string;
+    onTapHandler?: string;
+  };
 }
 
-export interface Navigation extends BaseView {
-  type: "Navigation";
-  largeTitleEnabled: boolean;
-  title: string;
-  children: View[];
+interface Navigation extends BaseView {
+  node: "Navigation";
+  element: {
+    id: string;
+    largeTitleEnabled: boolean;
+    title: string;
+    children: View[];
+  };
 }
 
-export interface Scroll extends BaseView {
-  type: "Scroll";
-  scrollDirection: "horizontal" | "vertical";
-  children: View[];
+interface Scroll extends BaseView {
+  node: "Scroll";
+  element: {
+    id: string;
+    scrollDirection: "horizontal" | "vertical";
+    children: View[];
+  };
 }
+
+// Union Type for all Views
+type View = TextLabel | Button | Navigation | Scroll;
 
 // DSL Functions
-export const TextLabel = (body: string, colour: string, font: string): TextLabel =>
-  ({ id: generateUUID(), type: "TextLabel", body, colour, font });
+export const TextLabel = (body: string, colour: string, font: string): TextLabel => ({
+  node: "TextLabel",
+  element: {
+    id: uuidv4(),
+    body,
+    colour,
+    font,
+  },
+});
 
-export const Button = (label: string, colour: string, onTapHandler: () => void): Button =>
-  ({ id: generateUUID(), type: "Button", label, colour, onTapHandler });
+export const Button = (label: string, colour: string, onTapHandler?: string): Button => ({
+  node: "Button",
+  element: {
+    id: uuidv4(),
+    label,
+    colour,
+    onTapHandler,
+  },
+});
 
 export const Navigation = (
   largeTitleEnabled: boolean,
   title: string,
   children: View[] = []
-): Navigation =>
-  ({ id: generateUUID(), type: "Navigation", largeTitleEnabled, title, children });
+): Navigation => ({
+  node: "Navigation",
+  element: {
+    id: uuidv4(),
+    largeTitleEnabled,
+    title,
+    children,
+  },
+});
 
-  export const Scroll = (
+export const Scroll = (
   scrollDirection: "horizontal" | "vertical",
   children: View[] = []
-): Scroll =>
-  ({ id: generateUUID(), type: "Scroll", scrollDirection, children });
+): Scroll => ({
+  node: "Scroll",
+  element: {
+    id: uuidv4(),
+    scrollDirection,
+    children,
+  },
+});
 
-// Serialization to JSON
-export const toJSON = (view: View): string => JSON.stringify(view);
-
+// Serialize to JSON
+export const toJSON = (view: View): string => JSON.stringify(view, null, 2);
